@@ -1,0 +1,145 @@
+@font-face {
+    font-family: 'Mono';
+    src: url('../fonts/PTMono-Regular.ttf') format('truetype');
+    
+}
+@font-face {
+    font-family: 'headings';
+    src: url(../fonts/BreeSerif-Regular.ttf);
+}
+h2{
+    font-family: 'headings';
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+body{
+    background-color: #0e1935;
+    background-image: url(../images/synthwaveBG.jpg);
+    background-size: cover;
+    background-attachment: fixed;
+    background-blend-mode:darken;
+    color: #fffffd;
+}
+.close{
+    background-color: #0e193500;
+    border: 0;
+    position: absolute;
+    top: 20px;
+    left: 94%;
+    cursor: pointer;
+}
+.close img{
+    width: 30px;
+}
+.close:hover{
+    scale: 1.1;
+}
+.inputs{
+    border: 0.5px solid white;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    height: 30px;
+    background-color: #0e193500;
+    border-bottom:0.5px solid #fffffd;
+    font-family: 'mono';
+    letter-spacing: 1px;
+    font-size: 1.01rem;
+    color: #fffffd;
+    margin: auto;
+    border-radius: 5PX;
+    
+}
+#titleInput{
+    height: 50px;
+    font-family: 'headings';
+    letter-spacing: 2px;
+    font-size: 1.2rem;
+}
+.inputs:focus {
+    outline: none;
+    color: #fffffd;
+}
+
+input[type="submit"]{
+    position: absolute;
+    font-family: 'mono';
+    background-color: #0e1935;
+    color: #fffffd;
+    border: 1px solid #fffffd;
+    width: 100px;
+    height: 40px;
+    box-shadow: 0 0 2px #0ff, 0 0 6px #0ff, 0 0 8px #0ff;
+    right: 25px;
+    bottom: 20px;
+
+}
+input[type="submit"]:hover{
+    cursor: pointer;
+    scale: 1.1;
+    transition: ease-in-out 0.2s;
+
+}
+
+
+#blog{
+    min-height: 300px;
+    margin-top: 20px;
+    resize: none;
+}
+
+.masterContainer{
+    margin: auto;
+    margin-top: 60px;
+    max-width: 1000px;
+    min-height: 620px;
+    box-shadow: 0 0 2px #0ff, 0 0 6px #0ff, 0 0 8px #0ff;
+    position: relative;
+    background-color: #0e19358d;
+    padding: 10px 30px;
+    box-sizing: border-box;
+    
+    
+}
+form{
+    
+    margin-top: 50px;
+ 
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+    
+    
+}
+
+
+.custom-file-upload {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #0e1935;
+    color: #fffffd;
+    padding: 10px 15px;
+    border: 1px solid #fffffd;
+    cursor: pointer;
+    border-radius: 5px;
+    font-family: 'Mono';
+}
+
+.custom-file-upload img {
+    width: 20px;
+    height: 20px;
+}
+
+#fileInput {
+    display: none; /* Hide default file input */
+}
+
+span{
+    font-size: 9pt;
+    color: gold;
+}

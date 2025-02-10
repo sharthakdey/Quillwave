@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {% block title %}
+  <title>Document</title>
+  {% endblock %}
+  {% block styles %}
+  <link rel="stylesheet" href="../static/css/index.css">
+  {% endblock %}
+</head>
+
+<body>
+  <header>
+    <div class="masterContainer">
+      <div>
+        <a href="{{ url_for('index') }}"><img src="../static/images/navLogo.png" alt="Logo"></a>
+      </div>
+      <div id="navLinks">
+        <!-- Show User Name If Logged In -->
+        {% if 'session-user' in session %}
+        <div class="navItems">
+          <span id="user"><a href="">{{ session["user-name"] }}</a> </span>
+        </div>
+        {% endif %}
+
+        <div class="navItems"><a href="{{ url_for('about') }}">About</a></div>
+        <div class="navItems"><a href="">Contact</a></div>
+
+        <!-- Show "Logout" If User Is Logged In, Otherwise Show "Sign In" -->
+        {% if 'session-user' in session %}
+        <div class="navItems"><a href="{{ url_for('logout') }}">Logout</a></div>
+        {% else %}
+        <div class="navItems"><a href="{{ url_for('signin') }}">Sign in</a></div>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+  {% block content %}
+  <main>
+    <div class="masterContainer">
+      <div style="padding: 40px;">
+        <div id="textStuff">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
+          <p class="mono" style="color: rgb(207, 191, 128);">Immerse yourself in a world of thoughts and stories</p>
+          <h1>Discover the Thrilling World</h1>
+          <p class="mono" style="color: rgb(246, 248, 226);">Welcome to our captivating blog platform, where we share
+            insightful stories, fresh perspectives, and inspiring ideas to spark your curiosity. </p>
+          <button><a href="{{ url_for('home' ) }}">Explore Now</a></button>
+        </div>
+      </div>
+      <div>
+        <img src="../static/images/laptop4.jpeg" alt="">
+      </div>
+    </div>
+  </main>
+  {% endblock %}
+
+
+  <hr>
+
+  <footer>
+    <div class="footerContainer">
+      <div class="footerLinks">
+        <a href="{{ url_for('about' ) }}">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <p>&copy; 2025 YourBrand. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- <footer>
+        <div class="masterContainer">
+          <div class="footerGrids">
+            <h3>
+              Newsletter
+            </h3>
+            <hr>
+            <div class="newsletter">
+              <input type="text" placeholder="enter your email">
+              <button>
+                <a href="">subscribe</a>
+              </button>
+            </div>
+            
+    
+          </div>
+          <div class="footerGrids">
+            <h3>
+              About
+            </h3>
+            <hr>
+            <a href="./aboutUs.html">About Us</a>
+            <a href="">Careers</a>
+            <a href="">Legal</a>
+            <a href="">Privacy Policy</a>
+            <a href="">Downloads</a>
+          </div>
+          
+          <div class="footerGrids">
+            <h3>
+              Support
+            </h3>
+            <hr>
+            <a href="">Customer Support</a>
+            <a href="">FAQ</a>
+            <a href="">Visit Fortunez Forum</a>
+            <a href="">Privacy Policy</a>
+            <a href="">Downloads</a>
+          </div>
+          <p> &copy All rights reserved</p>
+        </div>
+        
+      </footer> -->
+
+</body>
+
+</html>

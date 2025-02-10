@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quillwave - Sign Up</title>
+    <link rel="stylesheet" href="../static/css/signup.css">
+</head>
+
+<body>
+
+    <div class="masterContainer" id="signUpContainer">
+        <div class="imageContainer insertContainer" id="image">
+        </div>
+        <div class="signInForm insertContainer" id="form">
+            <a href="{{ url_for('index' ) }}"><img src="../static/images/navLogo.png" alt=""></a>
+            <form action="signupRoute" method="post">
+                <div class="formSections">
+                    <label for="user-name">Username</label>
+                    <input type="text" id="user-name" class="inputs" name="name" required>
+                </div>
+                <div class="formSections">
+                    <label for="user-email">Email</label>
+                    <input type="email" id="user-email" class="inputs" name="email" required>
+                </div>
+                <div class="formSections">
+                    <label for="user-email">Password</label>
+                    <input type="password" id="user-password" class="inputs" name="password" minlength="6" maxlength="10" required>
+                </div>
+                <div class="formSections">
+                    <input type="submit" value="Sign Up">
+                </div>
+                <div class="formSections">
+                    <p>Already have an account? <a href="{{ url_for('signin' ) }}">Sign In</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>

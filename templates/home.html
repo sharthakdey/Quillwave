@@ -1,0 +1,108 @@
+{% extends 'index.html' %}
+{% block title %}
+    <title>Quillwave | Home</title>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="static\css\home.css">
+{% endblock %}
+{% block content %}
+<main>
+    <div class="masterContainer" id="onYourMind">
+        <section>
+            <div class="textCreator">
+                <img src="../static/images/Saatvik.jpg" alt="" class="profilePic">
+                <a href="{{ url_for('create' ) }}"><input name="" id="" placeholder="What's on your mind? " ></a>
+            </div>
+            <div class="features">
+                <div>
+                    <button>
+                        <a href="{{ url_for('bookmarks') }}"><img src="../static/images/icons/save2.png" alt=""></a>
+                    </button>
+                    <button>
+                        <img src="../static/images/icons/attatch.png" alt="">
+                    </button>
+                    <button>
+                        <a href="https://www.google.com/maps/@30.5526296,76.6653343,13.4z?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D"><img src="../static/images/icons/location.png" alt=""></a>
+                    </button>
+                    
+                </div>
+                <div>
+                    <button>Post</button>
+                </div>
+                
+            </div>
+        </section>
+
+
+
+        
+
+    </div>
+    <h3>For You</h3>
+    <div class="masterContainer" id="allPosts">
+        {% if posts %}
+            {% for post in posts %}
+                <section class="postsSection">
+                    <div class="metaData">
+                        <div>
+                            <img src="{{ url_for('static', filename='images/default-profile.png') }}" alt="Profile" class="profilePic">
+                        </div>
+                        <div class="nameAndTime">
+                            <h4>{{ post.author }}</h4>
+                            <p>{{ post.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</p>
+                        </div>
+                    </div>
+    
+                    <div class="blogTrailer">
+                        <div class="trailerText">
+                            <h2>{{ post.title }}</h2>
+                            <hr>
+                            <p>{{ post.content[:200] }}...</p>
+                        </div>
+                        {% if post.image %}
+                        <div class="trailerImage">
+                            <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image" style="width: 300px; height: auto;">                        
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="trailerIcons">
+                        <button class="like-btn" data-post-id="{{ post.id }}">
+                            <img src="../static/images/icons/like2.png" alt="Like" class="like-icon {% if session['session-user'] in post.liked_by %}liked{% endif %}">
+                        </button>
+                        <span id="like-count-{{ post.id }}">{{ post.likes }}</span>  
+                        
+                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
+                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
+                        <form action="{{ url_for('bookmark_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="iconsButton">
+                                <img src="../static/images/icons/save2.png" alt="Bookmark" class="icons">
+                            </button>
+                        </form>
+                        
+                    </div>
+                    <div class="editIcons">
+                        {% if session["user-name"] == post.author %}
+                        <a class="iconsButton" href="{{ url_for('updateFunction',id=post.id ) }}"><img src="../static/images/icons/edit.png" alt="" class="icons"></a>
+                        <a class="iconsButton" href="{{ url_for('deleteFunction',id=post.id ) }}"><img src="../static/images/icons/delete.png" alt="" class="icons"></a>
+                        {% endif %}
+                    </div>
+                    
+                        
+                </section>
+            {% endfor %}
+        {% else %}
+            <p>No posts yet. Be the first to write one!</p>
+        {% endif %}
+    </div>
+    
+
+    </main>
+
+    <script src="../static/js/like.js">
+
+
+    
+</script>
+
+{% endblock %}

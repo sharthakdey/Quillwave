@@ -1,0 +1,85 @@
+
+{% extends 'index.html' %}
+
+{% block title %}
+<title>About</title>
+{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="../static/css/index.css">
+{% endblock %}
+
+{% block content %}
+<main>
+    <section class="heroSection">
+        <h1>Unleash Your Voice, Shape the Narrative</h1>
+        <p>Quillwave is where words find meaning, ideas take flight, and voices are heard.</p>
+    </section>
+
+    <section class="aboutPhilosophy">
+        <div class="contentWrapper">
+            <div class="textContent">
+                <h2>Why Quillwave?</h2>
+                <p>At Quillwave, we believe that writing is more than just words on a page—it's a way to express, inspire, and connect. Whether you're an experienced writer or someone who just wants to share a thought, Quillwave is your platform to be heard.</p>
+                
+                <p>Our mission is simple: to create a <span>barrier-free blogging space</span> where authenticity thrives, where every voice matters, and where ideas, no matter how small, can ripple into <span>something bigger</span>.</p>
+            </div>
+            <div class="imageContent">
+                <img src="../static/images/journal.jpeg" alt="Writing and blogging concept">
+            </div>
+        </div>
+    </section>
+
+    <section class="reviewsSection">
+        <h2>What Our Writers Say</h2>
+        <div class="reviewsGrid">
+            <div class="reviewCard">
+                <img src="../static/images/alex.jpeg" alt="User">
+                <p>"Quillwave gave me the confidence to publish my thoughts without fear of judgment. The community is amazing!"</p>
+                <span>- Alex R.</span>
+            </div>
+
+            <div class="reviewCard">
+                <img src="../static/images/jamie.jpeg" alt="User">
+                <p>"A beautifully simple yet powerful platform for writers. The clean, distraction-free interface makes writing effortless."</p>
+                <span>- Jamie W.</span>
+            </div>
+
+            <div class="reviewCard">
+                <img src="../static/images/morgan.jpeg" alt="User">
+                <p>"Finally, a blogging space where creativity isn’t restricted. I love how intuitive and open Quillwave is!"</p>
+                <span>- Morgan K.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="foundersSection">
+        <h2>Meet the Minds Behind Quillwave</h2>
+        <div class="founderCards">
+            <div class="founder">
+                <img src="../static/images/Saatvik.jpg" alt="Saatvik">
+                <h3>Saatvik</h3>
+                <p>Saatvik believes in the power of storytelling to spark change and bring communities together.</p>
+            </div>
+    
+            <div class="founder">
+                <img src="../static/images/sharthak.jpg" alt="Sharthak">
+                <h3>Sharthak</h3>
+                <p>Sharthak is passionate about building intuitive digital experiences for creative minds.</p>
+            </div>
+    
+            <div class="founder">
+                <img src="../static/images/dhruv.jpg" alt="Dhruv">
+                <h3>Dhruv</h3>
+                <p>Dhruv is a tech lover dedicated to creating seamless platforms for expression.</p>
+            </div>
+    
+            <div class="founder">
+                <img src="../static/images/sargam.jpg" alt="Sargam">
+                <h3>Sargam</h3>
+                <p>Sargam is a visionary who believes every voice has the potential to inspire the world.</p>
+            </div>
+        </div>
+    </section>
+    
+</main>
+{% endblock %}
