@@ -8,6 +8,11 @@
 <link rel="stylesheet" href="../static/css/index.css">
 {% endblock %}
 
+{% block nav_items %}
+<div class="navItems"><a href="{{ url_for('home') }}">Feed</a></div>
+<div class="navItems"><a href="">Contact</a></div>
+{% endblock %}
+
 {% block content %}
 <main>
     <section class="heroSection">

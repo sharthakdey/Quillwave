@@ -1,18 +1,34 @@
 {% extends 'index.html' %}
 {% block title %}
-    <title>Quillwave | Home</title>
+<title>Quillwave | Home</title>
 {% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" href="static\css\home.css">
+<link rel="stylesheet" href="static\css\home.css">
+<link rel="stylesheet" href="../static/css/comment.css">
+<link rel="stylesheet" href="../static/css/share.css">
 {% endblock %}
+
+
+
+
+{% block nav_items %}
+<div class="navItems"><a href="{{ url_for('about') }}">About</a></div>
+<div class="navItems"><a href="{{ url_for('contact' ) }}">Contact</a></div>
+{% endblock %}
+
 {% block content %}
 <main>
     <div class="masterContainer" id="onYourMind">
         <section>
             <div class="textCreator">
-                <img src="../static/images/Saatvik.jpg" alt="" class="profilePic">
-                <a href="{{ url_for('create' ) }}"><input name="" id="" placeholder="What's on your mind? " ></a>
+                {% if profile_picture %}
+                    <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Profile" class="profilePic">
+                {% else %}
+                    <img src="static\images\Blogs\defaultUser.png" alt="Profile" class="profilePic">
+                {% endif %}
+
+                <a href="{{ url_for('create' ) }}"><input name="" id="" placeholder="What's on your mind? "></a>
             </div>
             <div class="features">
                 <div>
@@ -23,86 +39,131 @@
                         <img src="../static/images/icons/attatch.png" alt="">
                     </button>
                     <button>
-                        <a href="https://www.google.com/maps/@30.5526296,76.6653343,13.4z?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D"><img src="../static/images/icons/location.png" alt=""></a>
+                        <a
+                            href="https://www.google.com/maps/@30.5526296,76.6653343,13.4z?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D"><img
+                                src="../static/images/icons/location.png" alt=""></a>
                     </button>
-                    
+
                 </div>
                 <div>
                     <button>Post</button>
                 </div>
-                
+
             </div>
         </section>
 
 
 
-        
+
 
     </div>
     <h3>For You</h3>
     <div class="masterContainer" id="allPosts">
         {% if posts %}
-            {% for post in posts %}
-                <section class="postsSection">
-                    <div class="metaData">
-                        <div>
-                            <img src="{{ url_for('static', filename='images/default-profile.png') }}" alt="Profile" class="profilePic">
-                        </div>
-                        <div class="nameAndTime">
-                            <h4>{{ post.author }}</h4>
-                            <p>{{ post.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</p>
-                        </div>
-                    </div>
-    
-                    <div class="blogTrailer">
-                        <div class="trailerText">
-                            <h2>{{ post.title }}</h2>
-                            <hr>
-                            <p>{{ post.content[:200] }}...</p>
-                        </div>
-                        {% if post.image %}
-                        <div class="trailerImage">
-                            <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image" style="width: 300px; height: auto;">                        
-                        </div>
-                        {% endif %}
-                    </div>
+        {% for post in posts %}
+        <section class="postsSection">
+            <div class="metaData">
+                <div class="profilePic">
+                    {% if user_profiles[post.author] %}
+                        <img src="data:image/jpeg;base64,{{ user_profiles[post.author] }}" alt="Profile" class="profilePic">
+                    {% else %}
+                        <img src="static\images\Blogs\defaultUser.png" alt="Profile" class="profilePic">
+                    {% endif %}
+
+
+                </div>  
+                <div class="nameAndTime">
+                    <h4>{{ post.author }}</h4>
+                    <p>{{ post.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</p>
+                </div>
+            </div>
+
+            <div class="blogTrailer">
+                <div class="trailerText">
+                    <h2><a href="{{ url_for('view_post',post_id=post.id ) }}"
+                            style="text-decoration: none; color: white;">{{ post.title }}</a></h2>
+                    <hr>
+                    <p>{{ post.content[:200] }}...</p>
                     <div class="trailerIcons">
                         <button class="like-btn" data-post-id="{{ post.id }}">
-                            <img src="../static/images/icons/like2.png" alt="Like" class="like-icon {% if session['session-user'] in post.liked_by %}liked{% endif %}">
+                            <img src="../static/images/icons/like2.png" alt="Like"
+                                class="like-icon {% if session['session-user'] in post.liked_by %}liked{% endif %}">
                         </button>
-                        <span id="like-count-{{ post.id }}">{{ post.likes }}</span>  
-                        
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <form action="{{ url_for('bookmark_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                        <span id="like-count-{{ post.id }}">{{ post.likes }}</span>
+                        <button class="iconsButton comment-btn" data-post-id="{{ post.id }}">
+                            <img src="../static/images/icons/comment2.png" alt="Comment" class="icons">
+                        </button>
+                        <span id="comment-count-{{ post.id }}">{{ post.comments|length }}</span>
+
+
+                        <button class="iconsButton share-btn" data-post-id="{{ post.id }}">
+                            <img src="../static/images/icons/share2.png" alt="Share" class="icons">
+                        </button>
+
+                        <!-- Hidden Share Options -->
+                        <div class="share-options" id="share-options-{{ post.id }}" style="display: none;">
+                            <a href="#" class="whatsapp-share" data-post-id="{{ post.id }}">
+                                <img src="../static/images/icons/whatsapp.jpg" alt="WhatsApp">
+                            </a>
+                            <a href="#" class="instagram-share" data-post-id="{{ post.id }}">
+                                <img src="../static/images/icons/instagram.jpg" alt="Instagram">
+                            </a>
+                        </div>
+                        <form action="{{ url_for('bookmark_post', post_id=post.id) }}" method="POST"
+                            style="display:inline;">
                             <button type="submit" class="iconsButton">
                                 <img src="../static/images/icons/save2.png" alt="Bookmark" class="icons">
                             </button>
                         </form>
-                        
-                    </div>
-                    <div class="editIcons">
-                        {% if session["user-name"] == post.author %}
-                        <a class="iconsButton" href="{{ url_for('updateFunction',id=post.id ) }}"><img src="../static/images/icons/edit.png" alt="" class="icons"></a>
-                        <a class="iconsButton" href="{{ url_for('deleteFunction',id=post.id ) }}"><img src="../static/images/icons/delete.png" alt="" class="icons"></a>
-                        {% endif %}
+                        <div class="editIcons">
+                            {% if session["user-name"] == post.author %}
+                            <a class="iconsButton" href="{{ url_for('updateFunction',id=post.id ) }}"><img
+                                    src="../static/images/icons/edit.png" alt="" class="icons"></a>
+                            <a class="iconsButton" href="{{ url_for('deleteFunction',id=post.id ) }}"><img
+                                    src="../static/images/icons/delete.png" alt="" class="icons"></a>
+                            {% endif %}
+                        </div>
+
                     </div>
                     
-                        
-                </section>
-            {% endfor %}
+                    <div class="comment-section" id="comment-section-{{ post.id }}" style="display: none;">
+                        <div class="comments-list" id="comments-list-{{ post.id }}">
+                            {% for comment in post.comments %}
+                            <div class="comment">
+                                <strong>{{ comment.user_email }}</strong>: {{ comment.content }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Comment Input Box -->
+                        <form class="comment-form" data-post-id="{{ post.id }}">
+                            <input type="text" name="content" placeholder="Add a comment..." required>
+                            <button type="submit">Post</button>
+                        </form>
+                    </div>
+
+                </div>
+                {% if post.image %}
+                <div class="trailerImage">
+                    <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image" 
+                        style="width: 300px; height: auto; object-fit: cover;">
+                </div>
+            {% endif %}
+
+            </div>
+
+        </section>
+        {% endfor %}
         {% else %}
-            <p>No posts yet. Be the first to write one!</p>
+        <p>No posts yet. Be the first to write one!</p>
         {% endif %}
     </div>
-    
-
-    </main>
-
-    <script src="../static/js/like.js">
 
 
-    
-</script>
+</main>
 
+<script src="../static/js/like.js"></script>
+<script src="../static/js/comment.js"></script>
+<script src="../static/js/share.js"></script>
+<!-- <script src="../static/js/reload.js"></script> -->
 {% endblock %}

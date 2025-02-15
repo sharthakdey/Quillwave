@@ -1,0 +1,23 @@
+.share-options {
+    display: none;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.share-options a {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+}
+
+.share-options img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.share-options img:hover {
+    transform: scale(1.1);
+}

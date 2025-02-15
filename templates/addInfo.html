@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quillwave - Create</title>
+    <link rel="stylesheet" href="../static/css/createPage.css">
+
+
+    <!-- SHARTHAK BSDK BETE!!!!!!YEH STYLE TAG ZAROOR DALNA EVEN JAB DYNAMIC BANAYEGA -->
+    <style>
+        div.masterContainer{
+            width: 40%;
+            min-height: 300px;
+            margin-top: 100px;
+        }
+        form{
+            gap: 30px;
+        }
+        button.close{
+            position: absolute;
+            top: 15px;
+            left: 90%;
+        }
+
+    </style>
+    
+</head>
+
+<body>
+   
+    <div class="masterContainer">
+        <button class="close" onclick="window.location.href='profile.html';">
+            <img src="../static/images/icons/close.png" alt="">
+        </button>
+        <h2>Add info</h2>
+
+        <section class="form">
+            <form action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+                <div>
+                    <input type="text" name="location" class="inputs" id="locationInput" placeholder="Where're you from?" required>
+                </div>
+            
+                <div>
+                    <label for="fileInput" class="custom-file-upload">
+                        <span id="fileLabel">Add a profile picture</span>
+                    </label>
+                    <input type="file" id="fileInput" name="profile_picture" accept="image/*">
+                </div>
+            
+                <input type="submit" value="Save">
+            </form>
+        </section>
+        
+
+          
+
+
+      
+    </div>
+    <script>
+        document.getElementById("fileInput").addEventListener("change", function () {
+        let fileName = this.files[0] ? this.files[0].name : "Choose an image";
+        document.getElementById("fileLabel").textContent = fileName;
+        });
+
+
+    </script>
+</body>
+</html>

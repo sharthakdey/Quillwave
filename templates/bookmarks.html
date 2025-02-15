@@ -1,22 +1,133 @@
 {% extends 'index.html' %}
-{% block title %} <title>Saved Posts</title> {% endblock %}
+{% block title %}
+<title>Saved Posts</title>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="../static/css/home.css">
+<style>
+    section{
+        position: relative;
+    }
+    
+    .remove-bookmark {
+        background: transparent; /* Makes the button background transparent */
+        border: none; /* Removes the border */
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+    }
+
+    .remove-bookmark img {
+        width: 30px;
+        height: auto;
+    }
+    
+    
+ 
+</style>
+{% endblock %}
+
+
 {% block content %}
-    <h2>Your Bookmarked Posts</h2>
-    {% if saved_posts %}
-        {% for post in saved_posts %}
-            <div class="post">
-                <h3>{{ post.title }}</h3>
-                <p>{{ post.content[:200] }}...</p>
-                <p><small>By {{ post.author }}</small></p>
-                {% if post.image %}
-                    <img src="data:image/jpeg;base64,{{ base64.b64encode(post.image).decode('utf-8') }}" alt="Post Image">
-                {% endif %}
+<main>
+    <h3>Your Bookmarked Posts</h3>
+    <div class="masterContainer" id="allPosts">
+        
+        {% if saved_posts %}
+            {% for post in saved_posts %}
+            <section class="postsSection">
+                <div class="metaData">
+                    <div>
+                        {% if user_profiles[post.author] %}
+                        <img src="data:image/jpeg;base64,{{ user_profiles[post.author] }}" alt="Profile" class="profilePic">
+                            {% else %}
+                                <img src="static\images\Blogs\defaultUser.jpg" alt="Profile" class="profilePic">
+                            {% endif %}                   
+                    </div>
+                    <div class="nameAndTime">
+                        <h4>{{ post.author }}</h4>
+                        <p>{{ post.timestamp.strftime('%B %d, %Y, %I:%M %p') }}</p>
+                    </div>
+                </div>
+                <div class="blogTrailer">
+                    <div class="trailerText">
+                        <h2><a href="{{ url_for('view_post', post_id=post.id) }}" style="text-decoration: none; color: white;">{{ post.title }}</a></h2>
+                        <hr>
+                        <p>{{ post.content[:200] }}...</p>
+                        <div class="trailerIcons">
+                            <button class="like-btn" data-post-id="{{ post.id }}">
+                                <img src="../static/images/icons/like2.png" alt="Like"
+                                    class="like-icon {% if session['session-user'] in post.liked_by %}liked{% endif %}">
+                            </button>
+                            <span id="like-count-{{ post.id }}">{{ post.likes }}</span>
+                            <button class="iconsButton comment-btn" data-post-id="{{ post.id }}">
+                                <img src="../static/images/icons/comment2.png" alt="Comment" class="icons">
+                            </button>
+                            <span id="comment-count-{{ post.id }}">{{ post.comments|length }}</span>
+    
+    
+                            <button class="iconsButton share-btn" data-post-id="{{ post.id }}">
+                                <img src="../static/images/icons/share2.png" alt="Share" class="icons">
+                            </button>
+    
+                            <!-- Hidden Share Options -->
+                            <div class="share-options" id="share-options-{{ post.id }}" style="display: none;">
+                                <a href="#" class="whatsapp-share" data-post-id="{{ post.id }}">
+                                    <img src="../static/images/icons/whatsapp.jpg" alt="WhatsApp">
+                                </a>
+                                <a href="#" class="instagram-share" data-post-id="{{ post.id }}">
+                                    <img src="../static/images/icons/instagram.jpg" alt="Instagram">
+                                </a>
+                            </div>
+                            <form action="{{ url_for('bookmark_post', post_id=post.id) }}" method="POST"
+                                style="display:inline;">
+                                <button type="submit" class="iconsButton">
+                                    <img src="../static/images/icons/save2.png" alt="Bookmark" class="icons">
+                                </button>
+                            </form>
+                            <div class="editIcons">
+                                {% if session["user-name"] == post.author %}
+                                <a class="iconsButton" href="{{ url_for('updateFunction',id=post.id ) }}"><img
+                                        src="../static/images/icons/edit.png" alt="" class="icons"></a>
+                                <a class="iconsButton" href="{{ url_for('deleteFunction',id=post.id ) }}"><img
+                                        src="../static/images/icons/delete.png" alt="" class="icons"></a>
+                                {% endif %}
+                            </div>
+    
+                        </div>
+                        
+                        <div class="comment-section" id="comment-section-{{ post.id }}" style="display: none;">
+                            <div class="comments-list" id="comments-list-{{ post.id }}">
+                                {% for comment in post.comments %}
+                                <div class="comment">
+                                    <strong>{{ comment.user_email }}</strong>: {{ comment.content }}
+                                </div>
+                                {% endfor %}
+                            </div>
+    
+                            <!-- Comment Input Box -->
+                            <form class="comment-form" data-post-id="{{ post.id }}">
+                                <input type="text" name="content" placeholder="Add a comment..." required>
+                                <button type="submit">Post</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% if post.image %}
+                    <div class="trailerImage">
+                        <img src="data:image/jpeg;base64,{{ base64.b64encode(post.image).decode('utf-8') }}" alt="Post Image">
+                    </div>
+                    {% endif %}
+                </div>
                 <form action="{{ url_for('bookmark_post', post_id=post.id) }}" method="POST">
-                    <button type="submit">Remove Bookmark</button>
+                    <button type="submit" class="remove-bookmark" id="remove-bookmark"><img src="../static/images/icons/close.png" alt=""></button>
                 </form>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No bookmarked posts yet.</p>
-    {% endif %}
+            </section>
+            {% endfor %}
+        {% else %}
+            <p>No bookmarked posts yet.</p>
+        {% endif %}
+    </div>
+</main>
 {% endblock %}

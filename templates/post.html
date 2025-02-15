@@ -1,0 +1,36 @@
+{% extends 'index.html' %}
+{% block title %}
+<title>{{ post.title }}</title>
+{% endblock %}
+
+
+
+{% block content %}
+<main class="post-container">
+    <div class="post-meta">
+        <h1>{{ post.title }}</h1>
+        <p>By <strong>{{ post.author }}</strong> on 
+            {% if post.timestamp is string %}
+                {{ post.timestamp }}  <!-- Directly display string for curated posts -->
+            {% else %}
+                {{ post.timestamp.strftime('%B %d, %Y, %I:%M %p') }}  <!-- Format for user-created posts -->
+            {% endif %}
+        </p>
+        
+    </div>
+
+    {% if post_image %}
+    <div class="post-image">
+        <img src="data:image/jpeg;base64,{{ post_image }}" alt="Post Image">
+    </div>
+    {% endif %}
+
+    <div class="post-content">
+        <p>{{ post.content }}</p>
+    </div>
+
+    <div class="post-actions">
+        <a href="{{ url_for('home') }}" class="back-button">← Back to Home</a>
+    </div>
+</main>
+{% endblock %}

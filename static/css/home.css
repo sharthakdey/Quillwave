@@ -118,6 +118,9 @@ section>div{
     gap: 20px;
     
 }
+.textCreator a{
+    width: 100%;
+}
 .textCreator input{
     background-color:#0e1935;
     border: none;
@@ -203,15 +206,22 @@ h3{
 }
 .blogTrailer{
     display: grid;
-    gap: 30px;
+    gap: 10px;
     grid-template-columns: 60% 40%;
 }
-h2{
+
+h2{ 
+    margin: 0;
     font-family: 'headings';
     letter-spacing: 2px;
     font-size: 1.9rem;
 }
+.blogTrailer hr{
+    margin-top: 0;
+    margin-bottom: 0;
+}
 .blogTrailer p{
+    margin: 0;
     letter-spacing: 1px;
     line-height: 1.5rem;
 }
@@ -231,20 +241,32 @@ h2+hr{
     width: 100%;
     border: 0.5px solid #f4c542;
 }
-.trailerIcons{
-    min-height: 30px;
-    
-}
 .trailerText{
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    /* position: relative; */
+    position: relative;
+    box-sizing: border-box;
+    padding: 0;
 }
+
+.trailerIcons{
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+
+    
+}
+
+
 div.trailerIcons{
+    position: relative;
     display: flex;
     align-items: center;
     gap: 10px;
+
     
 }
 .iconsButton{
@@ -257,11 +279,14 @@ div.trailerIcons{
     scale: 1.1;
 }
 
-/* div.editIcons{
+div.editIcons{
+
     position: absolute;
-    bottom: 2px;
     right: 0;
-} */
+    display: flex;
+    gap: 10px;
+  
+}
 
 .like-btn {
     border: none;
@@ -284,7 +309,7 @@ div.trailerIcons{
 }
 
 .liked {
-    filter: drop-shadow(0 0 10px red); /* ✅ Glows when liked */
+    filter: drop-shadow(0 0 10px rgb(255, 235, 123)); /* ✅ Glows when liked */
 }
 
 
@@ -325,4 +350,12 @@ footer {
 footer p {
     font-size: 12px;
     color: #bfbfbf;
+}
+
+.profilePic {
+    width: 80px;  /* Adjust width */
+    height: 80px; /* Adjust height */
+    object-fit: cover; /* Ensures the image fills the div without stretching */
+    border-radius: 50%; /* Keeps it circular */
+    overflow: hidden; /* Prevents overflow */
 }

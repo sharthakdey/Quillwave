@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Quillwave</title>
+    <link rel="stylesheet" href="../static/css/index.css"> <!-- Reusing main CSS -->
+    <style>
+        .contactInfo {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 200px;
+        }
+        .contactInfo strong {
+            color: #f4c542; /* Warm golden color */
+        }
+        footer{
+            margin-top: 40px;
+
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="masterContainer">
+            <div>
+                <a href="{{ url_for('home' ) }}"><img src="../static/images/navLogo.png" alt=""></a>
+            </div>
+            <div id="navLinks">
+                <div class="navItems"><a href="{{ url_for('about' ) }}">About</a></div>
+                <div class="navItems"><a href="{{ url_for('contact' ) }}">Contact</a></div>
+                <div class="navItems"><a href="{{ url_for('signin' ) }}">Sign in</a></div>
+            </div>
+        </div>
+    </header>
+    
+    <main>
+        <!-- Hero Section -->
+        <section class="heroSection">
+            <h1>Contact Us</h1>
+            <p>We're only one call away ;&#41</p>
+        </section>
+        
+        <!-- Contact Info -->
+        <section class="contactInfo">
+            <h2>Get in Touch</h2>
+            <p><strong>Phone:</strong> (323) 656-2050</p>
+            <p><strong>Address:</strong> 3330 W Cahuenga Blvd, Los Angeles, CA 90068</p>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footerContainer">
+            <div class="footerLinks">
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <p>&copy; 2025 Quillwave. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

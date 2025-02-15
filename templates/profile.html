@@ -10,262 +10,102 @@
     <header>
         <div class="masterContainer">
             <div>
-                <a href="./home.html"><img src="../static/images/navLogo.png" alt=""></a>
+                <a href="{{ url_for('index' ) }}"><img src="../static/images/navLogo.png" alt=""></a>
             </div>
             <div id="navLinks">
-                <div class="navItems"><a href="./about.html">About</a></div>
-                <div class="navItems"><a href="">Contact</a></div>
-                <div class="navItems"><a href="./signin.html">Sign in</a></div>
+                <!-- Show User Name If Logged In -->
+                {% if 'session-user' in session %}
+                <div class="navItems">
+                <span id="user"><a href="{{ url_for('profile' ) }}">{{ session["user-name"] }}</a> </span>
+                </div>
+                {% endif %}
+        
+                {% block nav_items %}
+                <div class="navItems"><a href="{{ url_for('home') }}">Home</a></div>
+                <div class="navItems"><a href="{{url_for('contact')}}">Contact</a></div>
+                {% endblock %}
                 
+        
+                <!-- Show "Logout" If User Is Logged In, Otherwise Show "Sign In" -->
+                {% if 'session-user' in session %}
+                <div class="navItems"><a href="{{ url_for('logout') }}">Logout</a></div>
+                {% else %}
+                <div class="navItems"><a href="{{ url_for('signin') }}">Sign in</a></div>
+                {% endif %}
             </div>
-            
 
         </div>
     </header>
     <section id="coverPhoto">
-        
         <div class="bigProfilePic">
-            <img src="../static/images/sharthak.jpg" alt="">
+            {% if profile_picture %}
+            <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Profile Picture">
+            {% else %}
+            <img src="static\images\Blogs\defaultUser.png" alt="Default Profile Picture">
+            {% endif %}
         </div>
     </section>
     
     <section>
         <div id="metaData">
-        
             <div class="metaDataKids">
                 <div>
-                    <h3>Sharthak Dey</h3>
+                    <h3>{{ user.name }}</h3>
                 </div>
-                <div>
+                <div class="location">
                     <img src="../static/images/icons/location.png" alt="">
-                    <p>Assam, India</p>
+                    <p>{{ user.location if user.location else 'Location not set' }}</p>
                 </div>
             </div>
-            
             <div id="numbersNcreate">
                 <div class="create">
-                    <button><img src="../static/images/icons/create2.png" alt=""></button>
+                    <a href="{{ url_for('addInfo' ) }}"><img src="../static/images/icons/create2.png" alt=""></a>
+                    <p>Add info</p>
         
                 </div>
                 <div class="numbers">
-                    <div><h3>51</h3><p>Posts</p></div>
-                    <div><h3>3.1 M</h3><p>Followers</p></div>
-                    <div><h3>261</h3><p>Following</p></div>    
+                    <div><h3>{{ post_count }}</h3><p>Posts</p></div>
                 </div>
                 
             </div>
             
+        
         </div>
     </section>
     
     <main>
 
         <div class="masterContainer">
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
+            {% if posts %}
+                {% for post in posts %}
+                <div class="postCards">
+                    <div class="trailerText">
+                        <h2><a href="{{ url_for('view_post',post_id=post.id ) }}"
+                            style="text-decoration: none; color: white;">{{ post.title }}</a></h2>
+                        <hr>
+                        <p>{{ post.content[:200] }}...</p>
+                        <div class="trailerIcons">
+                            <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="Like" class="icons"></button>
+                            <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="Comment" class="icons"></button>
+                            <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="Share" class="icons"></button>
+                            <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="Save" class="icons"></button>
+                        </div>
+                        <div class="editIcons">
+                            <a class="iconsButton" href="{{ url_for('updateFunction', id=post.id) }}"><img src="../static/images/icons/edit.png" alt="Edit" class="icons"></a>
+                            <a class="iconsButton" href="{{ url_for('deleteFunction', id=post.id) }}"><img src="../static/images/icons/delete.png" alt="Delete" class="icons"></a>
+                        </div>
                     </div>
+                    {% if post.image %}
+                    <div class="trailerImage">
+                    <img src="data:image/jpeg;base64,{{ post.image }}" alt="Post Image" 
+                        style="width: 300px; height: auto; object-fit: cover;">
                 </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
+                {% endif %}
                 </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            <div class="postCards">
-                <div class="trailerText">
-                    <h2>Scientists: After You Die You Will Become Music</h2>
-                    <hr>
-                    <p>We cannot currently hear the music of our souls because our ego’s noise is so deafening. But why wait? </p>
-                    <div class="trailerIcons">
-                        <button class="iconsButton"><img src="../static/images/icons/like2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/comment2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/share2.png" alt="" class="icons"></button>
-                        <button class="iconsButton"><img src="../static/images/icons/save2.png" alt="" class="icons"></button>
-                         
-                    </div>
-                </div>
-                <div class="trailerImage">
-                    <img src="../static/images/Blogs/cosmos.png" alt="">
-                </div>
-            </div>
-            
+                {% endfor %}
+            {% else %}
+                <p>No posts yet. Start creating!</p>
+            {% endif %}
         </div>
     </main>
 

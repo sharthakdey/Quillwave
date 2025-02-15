@@ -23,12 +23,15 @@
         <!-- Show User Name If Logged In -->
         {% if 'session-user' in session %}
         <div class="navItems">
-          <span id="user"><a href="">{{ session["user-name"] }}</a> </span>
+          <span id="user"><a href="{{ url_for('profile' ) }}">{{ session["user-name"] }}</a> </span>
         </div>
         {% endif %}
 
+        {% block nav_items %}
         <div class="navItems"><a href="{{ url_for('about') }}">About</a></div>
-        <div class="navItems"><a href="">Contact</a></div>
+        <div class="navItems"><a href="{{url_for('contact')}}">Contact</a></div>
+        {% endblock %}
+        
 
         <!-- Show "Logout" If User Is Logged In, Otherwise Show "Sign In" -->
         {% if 'session-user' in session %}
@@ -44,7 +47,7 @@
     <div class="masterContainer">
       <div style="padding: 40px;">
         <div id="textStuff">
-          {% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
           <div class="flash-messages">
             {% for category, message in messages %}
@@ -54,7 +57,7 @@
             {% endfor %}
           </div>
           {% endif %}
-          {% endwith %}
+          {% endwith %} -->
           <p class="mono" style="color: rgb(207, 191, 128);">Immerse yourself in a world of thoughts and stories</p>
           <h1>Discover the Thrilling World</h1>
           <p class="mono" style="color: rgb(246, 248, 226);">Welcome to our captivating blog platform, where we share
