@@ -3,16 +3,24 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta,datetime,timezone
 import base64
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_mail import *
+import random
 
 app=Flask(__name__)
-
 
 app.secret_key="welcome"
 app.permanent_session_lifetime=timedelta(minutes=40)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"connect_args": {"check_same_thread": False}}
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT']=465
+app.config['MAIL_USERNAME']='kingsharthakdey@gmail.com'
+app.config['MAIL_PASSWORD']='axap whlm wiit fewv'
+app.config['MAIL_USE_TLS']=False
+app.config['MAIL_USE_SSL']=True
+
+mail= Mail(app)
 db=SQLAlchemy(app)
 
 
@@ -47,14 +55,17 @@ class Post(db.Model):
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))    
     image = db.Column(db.LargeBinary, nullable=True)
     likes = db.Column(db.Integer, default=0)
+    is_draft = db.Column(db.Boolean, default=False)
     
-    def __init__(self, author, title, content,image):
+    def __init__(self, author, title, content,image,is_draft=False):
         self.author = author
         self.title = title
         self.content = content
         self.image = image
-        
+        self.is_draft = is_draft
 
+        
+        
         
 class Bookmark(db.Model):
     __tablename__ = "bookmarks"
@@ -117,27 +128,33 @@ def home():
     user_email = session["session-user"]
     user = Student.query.filter_by(email=user_email).first()
     
-    # ✅ Fetch all posts for home page
     posts = Post.query.order_by(Post.timestamp.desc()).all()
 
+    # ✅ Fetch all comments for each post
+    post_comments = {}
+    post_comment_counts = {}
+    posts_data = []
+    for post in posts:
+        posts_data.append({
+        "id": post.id,
+        "author": post.author,
+        "title": post.title,
+        "content": post.content,
+        "image": base64.b64encode(post.image).decode("utf-8") if post.image else None,
+        "timestamp": post.timestamp
+        })
+        comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.asc()).all()
+        post_comments[post.id] = comments  # Store comments for each post
+        post_comment_counts[post.id] = len(comments)
+        
     users = Student.query.all()
+    user_profiles = {u.name: base64.b64encode(u.profile_picture).decode("utf-8") if u.profile_picture else None for u in users}
+
     profile_picture = None
     if user and user.profile_picture:
         profile_picture = base64.b64encode(user.profile_picture).decode("utf-8")
-    # ✅ Convert post images to Base64 without modifying original post.image
-    for post in posts:
-        if post.image:
-            post.image = base64.b64encode(post.image).decode('utf-8')
 
-    # ✅ Convert profile picture to Base64 and pass it to home.html
-    user_profiles = {}
-    for u in users:
-        if u.profile_picture:
-            user_profiles[u.name] = base64.b64encode(u.profile_picture).decode("utf-8")
-        else:
-            user_profiles[u.name] = None
-
-    return render_template("home.html", posts=posts, user_profiles=user_profiles, profile_picture=profile_picture)
+    return render_template("home.html", posts=posts_data, post_comments=post_comments, user_profiles=user_profiles, profile_picture=profile_picture,post_comment_counts=post_comment_counts)
 
 
 
@@ -151,11 +168,29 @@ def create():
         flash("Please log in to access create page.", "warning")
         return redirect(url_for("signin"))
 
+
+@app.route("/content_contact",methods=['POST','GET'])
+def content_contact():
+    if request.method=="POST":
+        user_email = session["session-user"]
+        user = Student.query.filter_by(email=user_email).first()
+        username = user.name
+        message_content = request.form.get("message")
+        message_subject= request.form.get("subject")
+        msg = Message(subject=message_subject,sender=user_email,recipients=["kingsharthakdey@gmail.com"])
+        msg.body=f"User: {username} \nEmail: {user_email} \n\nMessage:\n{message_content}"
+        mail.send(msg)
+        return render_template("contact.html")
+    return render_template("content_contact.html")
+
+
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
 
-@app.route("/signupRoute",methods=["GET","POST"])
+
+
+@app.route("/signupRoute", methods=["GET", "POST"])
 def signupRoute():
     if request.method == "POST":
         name = request.form.get("name")
@@ -167,15 +202,58 @@ def signupRoute():
             flash("Email already registered! Please log in.", "warning")
             return redirect(url_for("signin"))
         else:
+            # Generate a new OTP for every signup
+            otp = random.randint(100000, 999999)
+            
+            # Send OTP to user's email
+            msg = Message("OTP", sender='kingsharthakdey@gmail.com', recipients=[email])
+            msg.body = str(otp)
+            mail.send(msg)
+
+            # Save the OTP and email in session for validation during OTP verification
+            session['otp'] = otp
+            session['email'] = email
+            session['name'] = name
+            session['password'] = password
+
+            return render_template("verifyOtp.html")
+
+    return render_template("signup.html")
+
+
+@app.route("/validate", methods=['POST'])
+def validate():
+    if request.method == "POST":
+        user_otp = request.form.get('otp')
+        
+        # Check if OTP entered by the user matches the session OTP
+        if user_otp and session.get('otp') == int(user_otp):
+            # OTP is correct, now save the user data in the database
+            name = session.get('name')
+            email = session.get('email')
+            password = session.get('password')
+
+            # Create a new Student object and save user details
             user = Student(name, email)
             user.save_hash_password(password)
             db.session.add(user)
             db.session.commit()
+
+            # Clear OTP from session after successful validation
+            session.pop('otp', None)
+            session.pop('name', None)
+            session.pop('email', None)
+            session.pop('password', None)
+
             flash("Signup successful! You can now log in.", "success")
             return redirect(url_for("signin"))
-    return render_template("signup.html")
-    
-    
+        else:
+            flash("Invalid OTP. Please try again.", "danger")
+            return redirect(url_for("signupRoute"))
+
+    return redirect(url_for("signupRoute"))
+
+            
 @app.route("/loginRoute", methods=["GET", "POST"])
 def loginRoute():
     if request.method == "POST":
@@ -199,7 +277,66 @@ def loginRoute():
     return redirect(url_for("signin"))
 
 
+@app.route("/forgotPassword", methods=["GET", "POST"])
+def forgotPassword():
+    if request.method == "POST":
+        email = request.form.get("email")
+        user = Student.query.filter_by(email=email).first()
         
+        if user:
+            otp = random.randint(100000, 999999)  # Generate OTP
+            session['reset_otp'] = otp
+            session['reset_email'] = email  # Store in session for verification
+
+            # Send OTP Email
+            msg = Message("Password Reset OTP", sender="kingsharthakdey@gmail.com", recipients=[email])
+            msg.body = f"Your OTP for password reset is: {otp}"
+            mail.send(msg)
+
+            flash("An OTP has been sent to your email.", "info")
+            return redirect(url_for("verifyResetOtp"))
+        else:
+            flash("Email not found. Please try again.", "danger")
+
+    return render_template("forgotPassword.html")
+
+@app.route("/verifyResetOtp", methods=["GET", "POST"])
+def verifyResetOtp():
+    if request.method == "POST":
+        user_otp = request.form.get("otp")
+
+        if 'reset_otp' in session and int(user_otp) == session['reset_otp']:
+            return redirect(url_for("resetPassword"))
+        else:
+            flash("Invalid OTP. Please try again.", "danger")
+
+    return render_template("verifyResetOtp.html")
+
+@app.route("/resetPassword", methods=["GET", "POST"])
+def resetPassword():
+    if request.method == "POST":
+        new_password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+
+        if new_password == confirm_password:
+            email = session.get("reset_email")
+            user = Student.query.filter_by(email=email).first()
+
+            if user:
+                user.save_hash_password(new_password)  # Hash and update password
+                db.session.commit()
+
+                session.pop("reset_otp", None)  # Clear session
+                session.pop("reset_email", None)
+
+                flash("Password reset successful! You can now log in.", "success")
+                return redirect(url_for("signin"))
+        else:
+            flash("Passwords do not match. Try again.", "danger")
+
+    return render_template("resetPassword.html")
+
+
 @app.route("/logout")
 def logout():
     session.pop("session-user", None)  
@@ -210,42 +347,57 @@ def logout():
 
 @app.route("/add_post", methods=["POST"])
 def add_post():
-    if "session-user" in session:
-        title = request.form.get("title")
-        content = request.form.get("content")
-        author = session["user-name"]
-        image = request.files.get("image")
-        image_data = None
-        if image and image.filename != "":
-            image_data = image.read()  
-
-        new_post = Post(author=author, title=title, content=content, image=image_data)
-        db.session.add(new_post)
-        db.session.commit()
-
-        # flash("Post created successfully!", "success")
-        return redirect(url_for("home"))
-
-    else:
+    if "session-user" not in session:
         flash("Please log in to create a post.", "danger")
         return redirect(url_for("signin"))
+
+    title = request.form.get("title")
+    content = request.form.get("content")
+    author = session["user-name"]
+    submit_type = request.form.get("submit_type")  # ✅ Get the submit type
+    image = request.files.get("image")
+
+    image_data = None
+    if image and image.filename != "":
+        image_data = image.read()
+
+    is_draft = True if submit_type == "Draft" else False  # ✅ Check if it's a draft
+
+    new_post = Post(author=author, title=title, content=content, image=image_data, is_draft=is_draft)
+    db.session.add(new_post)
+    db.session.commit()
+
+    flash("Draft saved!" if is_draft else "Post published!", "success")
+    
+    return redirect(url_for("drafts") if is_draft else url_for("home"))
+
 
 @app.route("/delete/<int:id>")
 def deleteFunction(id):
     if "session-user" not in session:
         flash("Please log in to delete a post.", "danger")
         return redirect(url_for("signin"))
+    
     post = db.session.get(Post, id)
-    if post:
-        if post.author == session["user-name"]:
-            db.session.delete(post)
-            db.session.commit()
-            # flash("Post deleted successfully!", "success")
-        else:
-            # flash("You can only delete your own posts!", "danger")
-            return redirect(url_for("home"))  
-    else:
+    if not post:
         flash("Post not found!", "danger")
+        return redirect(url_for("home"))
+    
+    # Allow admin to delete any post
+    if session.get("session-user") == "admin@gmail.com" and session.get("user-name") == "admin":
+        db.session.delete(post)
+        db.session.commit()
+        flash("Post deleted successfully by admin!", "success")
+        return redirect(url_for("home"))
+    
+    # Allow regular users to delete only their own posts
+    if post.author == session.get("user-name"):
+        db.session.delete(post)
+        db.session.commit()
+        flash("Post deleted successfully!", "success")
+    else:
+        flash("You can only delete your own posts!", "danger")
+    
     return redirect(url_for("home"))
 
 @app.route("/update/<int:id>", methods=["POST", "GET"])
@@ -299,6 +451,8 @@ def bookmark_post(post_id):
         return jsonify({"error": "Please log in to bookmark posts."}), 403  # Return JSON error
 
     user_email = session["session-user"]
+    # saved_posts = Post.query.join(Bookmark, Bookmark.post_id == Post.id).filter(Bookmark.user_email == user_email).all()
+
     existing_bookmark = Bookmark.query.filter_by(user_email=user_email, post_id=post_id).first()
 
     if existing_bookmark:
@@ -306,10 +460,10 @@ def bookmark_post(post_id):
         db.session.commit()
         response = {"status": "removed"}
     else:
-        new_bookmark = Bookmark(user_email, post_id)
-        db.session.add(new_bookmark)
-        db.session.commit()
-        response = {"status": "added"}
+                new_bookmark = Bookmark(user_email, post_id,)
+                db.session.add(new_bookmark)
+                db.session.commit()
+                response = {"status": "added"}
 
     # ✅ Return JSON response instead of redirecting
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
@@ -351,15 +505,20 @@ def add_comment(post_id):
     user_email = session["session-user"]
     content = request.form.get("content")
     
-    if not content:
+    if not content or content.strip() == "":
         return jsonify({"error": "Comment cannot be empty."}), 400
 
-    new_comment = Comment(user_email=user_email, post_id=post_id, content=content)
+    # ✅ Save the new comment in the database
+    new_comment = Comment(post_id=post_id, user_email=user_email, content=content)
     db.session.add(new_comment)
     db.session.commit()
 
-    return jsonify({"user": user_email, "content": content})
+    # ✅ Fetch updated comment count
+    comment_count = Comment.query.filter_by(post_id=post_id).count()
 
+    print(f"Updated comment count: {comment_count}")  # ✅ Debugging
+
+    return jsonify({"user": user_email, "content": content, "comment_count": comment_count})
 
 
 
@@ -393,7 +552,7 @@ def profile():
     # ✅ Fetch only the logged-in user's posts
     user_posts = Post.query.filter_by(author=user.name).order_by(Post.timestamp.desc()).all()
     post_count = len(user_posts)  # ✅ Dynamic post count
-
+    post=None
     for post in user_posts:
         if post.image:
             post.image = base64.b64encode(post.image).decode('utf-8')
@@ -402,10 +561,7 @@ def profile():
     if user.profile_picture:
         profile_picture = base64.b64encode(user.profile_picture).decode("utf-8")
 
-    return render_template(
-        "profile.html", user=user, posts=user_posts, 
-        post_count=post_count, profile_picture=profile_picture,post=post
-    )    
+    return render_template("profile.html", user=user, posts=user_posts, post_count=post_count, profile_picture=profile_picture,post=post)    
     
 @app.route("/update_profile_picture", methods=["POST"])
 def update_profile():
@@ -437,10 +593,61 @@ def update_profile():
 def addInfo():
     return render_template("addInfo.html")
 
+
+@app.route("/drafts")
+def drafts():
+    if "session-user" not in session:
+        flash("Please log in to view drafts.", "warning")
+        return redirect(url_for("signin"))
+
+    user_email = session["session-user"]
+    user = Student.query.filter_by(email=user_email).first()
+    
+    drafts = Post.query.filter_by(author=user.name, is_draft=True).order_by(Post.timestamp.desc()).all()
+
+    # ✅ Fetch user profile pictures
+    user_profiles = {}
+    for draft in drafts:
+        user_data = Student.query.filter_by(name=draft.author).first()
+        user_profiles[draft.author] = base64.b64encode(user_data.profile_picture).decode("utf-8") if user_data and user_data.profile_picture else None
+
+    drafts_data = []
+    for post in drafts:
+        drafts_data.append({
+            "id": post.id,
+            "author": post.author,
+            "title": post.title,
+            "content": post.content,
+            "image": base64.b64encode(post.image).decode("utf-8") if post.image else None,
+            "timestamp": post.timestamp
+        })
+
+    return render_template("drafts.html", drafts=drafts_data, user_profiles=user_profiles)
+
+
+@app.route("/publish_draft/<int:post_id>", methods=["POST"])
+def publish_draft(post_id):
+    if "session-user" not in session:
+        flash("Please log in to publish drafts.", "danger")
+        return redirect(url_for("signin"))
+
+    post = db.session.get(Post, post_id)
+    if not post or post.author != session["user-name"]:
+        flash("Unauthorized action.", "danger")
+        return redirect(url_for("drafts"))
+
+    post.is_draft = False  # ✅ Convert draft to published post
+    db.session.commit()
+
+
+
+    flash("Draft published!", "success")
+    return redirect(url_for("home"))
+
+    
+
 with app.app_context():
     db.create_all()  
-
-
 
 
 if __name__=="__main__":

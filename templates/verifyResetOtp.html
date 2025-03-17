@@ -1,0 +1,10 @@
+{% extends "index.html" %}
+
+{% block content %}
+<h2>Verify OTP</h2>
+<form action="{{ url_for('verifyResetOtp') }}" method="post">
+    <label for="otp">Enter OTP:</label>
+    <input type="text" id="otp" name="otp" required>
+    <input type="submit" value="Verify OTP">
+</form>
+{% endblock %}
