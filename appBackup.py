@@ -635,17 +635,67 @@ def publish_draft(post_id):
     if not post or post.author != session["user-name"]:
         flash("Unauthorized action.", "danger")
         return redirect(url_for("drafts"))
-
     post.is_draft = False  # ✅ Convert draft to published post
     db.session.commit()
-
-
-
     flash("Draft published!", "success")
     return redirect(url_for("home"))
 
-    
+@app.route("/search", methods=["GET"])
+def search():
+    if "session-user" not in session:
+        flash("Please log in to search posts.", "warning")
+        return redirect(url_for("signin"))
 
+    query = request.args.get("q", "").strip().lower()  # Get the search query from the URL parameter
+    user_email = session["session-user"]
+    user = Student.query.filter_by(email=user_email).first()
+
+    if not query:
+        posts = Post.query.order_by(Post.timestamp.desc()).all()  # Return all posts if no query
+    else:
+        # Filter posts where title or content contains the search query (case-insensitive)
+        posts = Post.query.filter(
+            (Post.title.like(f"%{query}%")) | (Post.content.like(f"%{query}%"))
+        ).order_by(Post.timestamp.desc()).all()
+
+    # Prepare post data for rendering (similar to the home route)
+    posts_data = []
+    post_comments = {}
+    post_comment_counts = {}
+    for post in posts:
+        posts_data.append({
+            "id": post.id,
+            "author": post.author,
+            "title": post.title,
+            "content": post.content,
+            "image": base64.b64encode(post.image).decode("utf-8") if post.image else None,
+            "timestamp": post.timestamp
+        })
+        comments = Comment.query.filter_by(post_id=post.id).order_by(Comment.timestamp.asc()).all()
+        post_comments[post.id] = comments
+        post_comment_counts[post.id] = len(comments)
+
+    users = Student.query.all()
+    user_profiles = {
+        u.name: base64.b64encode(u.profile_picture).decode("utf-8") if u.profile_picture else None
+        for u in users
+    }
+
+    profile_picture = None
+    if user and user.profile_picture:
+        profile_picture = base64.b64encode(user.profile_picture).decode("utf-8")
+
+    return render_template(
+        "home.html",
+        posts=posts_data,
+        post_comments=post_comments,
+        user_profiles=user_profiles,
+        profile_picture=profile_picture,
+        post_comment_counts=post_comment_counts,
+        search_query=query  # Pass the search query to the template
+    )
+    
+    
 with app.app_context():
     db.create_all()  
 

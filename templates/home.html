@@ -14,7 +14,13 @@
 
 {% block nav_items %}
 <div class="navItems"><a href="{{ url_for('about') }}">About</a></div>
-<div class="navItems"><a href="{{ url_for('contact' ) }}">Contact</a></div>
+<div class="navItems"><a href="{{ url_for('contact') }}">Contact</a></div>
+<div class="navItems">
+    <form action="{{ url_for('search') }}" method="GET" class="search-form">
+        <input type="text" name="q" placeholder="Search posts..." value="{{ search_query or '' }}" class="search-input">
+        <button type="submit" class="search-btn">Search</button>
+    </form>
+</div>
 {% endblock %}
 
 {% block content %}
